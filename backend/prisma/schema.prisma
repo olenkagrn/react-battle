@@ -1,0 +1,23 @@
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model User {
+  id           String   @id @default(uuid())
+  username     String   @unique
+  email        String   @unique
+  passwordHash String
+  createdAt    DateTime @default(now())
+}
+
+// TODO наступні спринти:
+// model Room { id, code (unique), hostId, status, createdAt }
+// model RoomParticipant { id, roomId, userId, joinedAt }
+// model Question { id, text, options (Json), correctOptionIndex, category, difficulty }
+// model GameSession { id, roomId, startedAt, finishedAt }
+// model GameResult { id, gameSessionId, userId, score, correctAnswersCount }
