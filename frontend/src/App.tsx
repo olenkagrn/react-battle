@@ -1,8 +1,13 @@
+import { CssBaseline, ThemeProvider } from '@mui/material';
+import { theme } from '@/shared/theme';
+import { AppRoutes } from './routes/AppRoutes';
+
 function App() {
   return (
-    <>
-      <h1>Vite + React</h1>
-    </>
+    <ThemeProvider theme={theme}>
+      <CssBaseline />
+      <AppRoutes />
+    </ThemeProvider>
   );
 }
 
