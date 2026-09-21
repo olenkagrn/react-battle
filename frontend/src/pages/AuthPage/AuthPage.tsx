@@ -1,5 +1,5 @@
-import { useState } from 'react';
 import { Box, Link as MuiLink, Typography } from '@mui/material';
+import { useSearchParams } from 'react-router-dom';
 import { AuthForm } from '@/shared/components';
 import { AUTH_CONTENT, AUTH_MODES, DEFAULT_AUTH_MODE } from './constants';
 import { divider, dividerLine, dividerText, footer, footerLink, page } from './styles';
@@ -7,11 +7,15 @@ import { SignUpForm } from './SignUpForm/SignUpForm';
 import { LoginForm } from './LoginForm/LoginForm';
 
 const AuthPage = () => {
-  const [mode, setMode] = useState(DEFAULT_AUTH_MODE);
+  const [searchParams, setSearchParams] = useSearchParams();
+  const requestedMode = searchParams.get('mode');
+  const mode = requestedMode === AUTH_MODES.LOGIN ? AUTH_MODES.LOGIN : DEFAULT_AUTH_MODE;
+
   const content = AUTH_CONTENT[mode];
 
   const handleModeChange = () => {
-    setMode(mode === AUTH_MODES.LOGIN ? AUTH_MODES.SIGNUP : AUTH_MODES.LOGIN);
+    const nextMode = mode === AUTH_MODES.LOGIN ? AUTH_MODES.SIGNUP : AUTH_MODES.LOGIN;
+    setSearchParams({ mode: nextMode });
   };
 
   return (
