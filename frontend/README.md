@@ -1,73 +1,122 @@
-# React + TypeScript + Vite
+# React Battle - frontend
 
-This template provides a minimal setup to get React working in Vite with HMR and some ESLint rules.
+Frontend частина multiplayer-гри React Battle, створена на React, TypeScript і Vite.
 
-Currently, two official plugins are available:
+## Передумови
 
-- [@vitejs/plugin-react](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react) uses [Oxc](https://oxc.rs)
-- [@vitejs/plugin-react-swc](https://github.com/vitejs/vite-plugin-react/blob/main/packages/plugin-react-swc) uses [SWC](https://swc.rs/)
+- Node.js 20 або новіший
+- npm
+- Доступний API за адресою `http://localhost:4000`
 
-## React Compiler
+Налаштування backend описано окремо в [backend/README.md](../backend/README.md).
 
-The React Compiler is not enabled on this template because of its impact on dev & build performances. To add it, see [this documentation](https://react.dev/learn/react-compiler/installation).
+## Локальне налаштування
 
-## Expanding the ESLint configuration
+Із кореня репозиторію виконайте:
 
-If you are developing a production application, we recommend updating the configuration to enable type-aware lint rules:
-
-```js
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-
-      // Remove tseslint.configs.recommended and replace with this
-      tseslint.configs.recommendedTypeChecked,
-      // Alternatively, use this for stricter rules
-      tseslint.configs.strictTypeChecked,
-      // Optionally, add this for stylistic rules
-      tseslint.configs.stylisticTypeChecked,
-
-      // Other configs...
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```bash
+cd frontend
+npm install
 ```
 
-You can also install [eslint-plugin-react-x](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-x) and [eslint-plugin-react-dom](https://github.com/Rel1cx/eslint-react/tree/main/packages/plugins/eslint-plugin-react-dom) for React-specific lint rules:
+Створіть файл `frontend/.env` у корені frontend-проєкту:
 
-```js
-// eslint.config.js
-import reactX from 'eslint-plugin-react-x';
-import reactDom from 'eslint-plugin-react-dom';
-
-export default defineConfig([
-  globalIgnores(['dist']),
-  {
-    files: ['**/*.{ts,tsx}'],
-    extends: [
-      // Other configs...
-      // Enable lint rules for React
-      reactX.configs['recommended-typescript'],
-      // Enable lint rules for React DOM
-      reactDom.configs.recommended,
-    ],
-    languageOptions: {
-      parserOptions: {
-        project: ['./tsconfig.node.json', './tsconfig.app.json'],
-        tsconfigRootDir: import.meta.dirname,
-      },
-      // other options...
-    },
-  },
-]);
+```env
+VITE_API_BASE_URL=http://localhost:4000/
 ```
+
+## Запуск застосунку
+
+```bash
+cd frontend
+npm run start
+```
+
+Frontend за замовчуванням доступний за адресою `http://localhost:5173`.
+Перед реєстрацією або входом API має бути запущений окремо.
+
+## Перевірка налаштування
+
+Відкрийте `http://localhost:5173/auth` і перевірте такий frontend flow:
+
+1. Створіть акаунт з унікальними username та email.
+2. Після успішної реєстрації застосунок перенаправить на login-форму і покаже success toast.
+3. Увійдіть за username і password, які використовувалися під час реєстрації.
+4. Після успішного входу застосунок перенаправить на `/`.
+
+## Доступні scripts
+
+Виконуйте ці команди з директорії `frontend`:
+
+| Команда                | Опис                                         |
+| ---------------------- | -------------------------------------------- |
+| `npm run start`        | Запустити Vite development server з HMR      |
+| `npm run build`        | Перевірити типи та створити production build |
+| `npm run preview`      | Локально переглянути production build        |
+| `npm run lint`         | Запустити ESLint                             |
+| `npm run format`       | Форматувати frontend-файли через Prettier    |
+| `npm run format:check` | Перевірити форматування без змін файлів      |
+| `npm run test:run`     | Один раз запустити набір тестів              |
+| `npm run check`        | Перевірити форматування, lint і build        |
+
+Перед створенням pull request виконайте:
+
+```bash
+npm run check
+```
+
+## Auth flow
+
+Frontend використовує RTK Query для HTTP-запитів і Redux для auth state.
+
+### Реєстрація
+
+`POST /auth/register`
+
+```json
+{
+  "username": "neo",
+  "email": "neo@example.com",
+  "password": "matrix123"
+}
+```
+
+Поле `confirmPassword` використовується лише для frontend-валідації і не надсилається на backend.
+
+### Вхід
+
+`POST /auth/login`
+
+```json
+{
+  "username": "neo",
+  "password": "matrix123"
+}
+```
+
+Backend повертає `accessToken` і `refreshToken`. Frontend зберігає їх у `localStorage` і надсилає access token так:
+
+```text
+Authorization: Bearer <accessToken>
+```
+
+Помилки backend показуються через глобальний error toast. Помилки клієнтської валідації показуються біля відповідних полів.
+
+## Поточні routes
+
+| Route              | Опис                                     |
+| ------------------ | ---------------------------------------- |
+| `/auth`            | Auth page, за замовчуванням sign-up mode |
+| `/auth?mode=login` | Auth page у login mode                   |
+| `/`                | Home page після успішного входу          |
+
+## Структура frontend
+
+- `src/main.tsx` - точка входу React, налаштування router і Redux Provider
+- `src/App.tsx` - theme, routes і глобальні success/error toasts
+- `src/api/services/authentication` - auth API-запити та DTO
+- `src/pages/AuthPage` - сторінки login і registration
+- `src/routes` - application routes
+- `src/store` - Redux store, auth state і типізовані selectors
+- `src/shared/components` - повторно використовувані form та UI components
+- `src/shared/theme` - налаштування Material UI theme
